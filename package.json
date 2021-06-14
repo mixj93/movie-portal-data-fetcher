@@ -1,0 +1,29 @@
+{
+  "name": "movie-portal-data-fetcher",
+  "version": "1.0.0",
+  "description": "用于获取电影传送门的视频信息、原视频的信息并存入Notion中的命令行工具。",
+  "main": "index.js",
+  "dependencies": {
+    "@notionhq/client": "^0.1.9",
+    "axios": "^0.21.1",
+    "commander": "^7.2.0",
+    "https-proxy-agent": "^5.0.0"
+  },
+  "devDependencies": {
+    "prettier": "2.3.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mixj93/movie-portal-data-fetcher.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mixj93/movie-portal-data-fetcher/issues"
+  },
+  "homepage": "https://github.com/mixj93/movie-portal-data-fetcher#readme"
+}
