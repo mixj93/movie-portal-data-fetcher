@@ -98,7 +98,87 @@ async function getYoutubeVideo(id) {
   }
 }
 
+/* {
+	"uri": "/videos/103333753",
+	"name": "Alphaville - A Crystal Maze",
+	"description": "",
+	"type": "video",
+	"link": "https://vimeo.com/103333753",
+	"duration": 248,
+	"width": 586,
+	"language": null,
+	"height": 480,
+	"embed": {},
+	"created_time": "2014-08-13T13:56:54+00:00",
+	"modified_time": "2021-06-13T02:25:57+00:00",
+	"release_time": "2014-08-13T13:56:54+00:00",
+	"content_rating": [],
+	"license": null,
+	"privacy": {},
+	"pictures": {},
+	"tags": [],
+	"stats": {},
+	"categories": [],
+	"uploader": {},
+	"metadata": {},
+	"user": {
+		"uri": "/users/31141540",
+		"name": "Henrike Lindenberger",
+		"link": "https://vimeo.com/user31141540",
+		"capabilities": {
+			"hasLiveSubscription": false,
+			"hasEnterpriseLihp": false,
+			"hasSvvTimecodedComments": false
+		},
+		"location": "Toronto, ON, Canada",
+		"gender": "m",
+		"bio": "",
+		"short_bio": "Editor at Minnow.",
+		"created_time": "2014-08-13T13:48:21+00:00",
+		"pictures": {},
+		"websites": [],
+		"metadata": {},
+		"location_details": {},
+		"skills": [],
+		"available_for_hire": false,
+		"can_work_remotely": false,
+		"resource_key": "89e45eed1a757c49ee2fa59f0383d9dad2aa8a96",
+		"account": "basic"
+	},
+	"app": null,
+	"status": "available",
+	"resource_key": "eb7a978f0a66ffed732c40ce3d815777747a9a95",
+	"upload": null,
+	"transcode": null,
+	"is_playable": true
+} */
+async function getVimeoVideo(id) {
+  const VIMEO_TOKEN = process.env.VIMEO_TOKEN
+  const HTTPS_PROXY = process.env.HTTPS_PROXY
+
+  try {
+    const response = await axios.get(`https://api.vimeo.com/videos/${id}`, {
+      headers: { Authorization: `Bearer ${VIMEO_TOKEN}` },
+      proxy: false,
+      httpsAgent: HTTPS_PROXY ? new HttpsProxyAgent(HTTPS_PROXY) : undefined,
+    })
+    if (response && response.data) {
+      return response.data
+    }
+  } catch (error) {
+    if (error && error.response && error.response.data) {
+      console.error(
+        `Error with Vimeo ${id}`,
+        error.response.data.error || error.response.data
+      )
+    } else {
+      console.error(`Error with Vimeo ${id}`)
+    }
+  }
+}
+
 module.exports = {
   listBilibiliVideos,
   getYoutubeVideo,
+  getVimeoVideo,
 }

@@ -3,7 +3,7 @@
 const commander = require('commander')
 const { Client } = require('@notionhq/client')
 const { myParseInt } = require('./utils')
-const { getYoutubeVideo } = require('./apis')
+const { getVimeoVideo } = require('./apis')
 
 const program = new commander.Command()
 
@@ -14,7 +14,7 @@ const notion = new Client({ auth: NOTION_TOKEN })
 
 program
   .version('1.0.0')
-  .description('Get data from Notion database and add YouTube info')
+  .description('Get data from Notion database and add Vimeo info')
   .option(
     '-c, --start-cursor <string>',
     'A cursor returned from a previous response, used to request the next page of results.'
@@ -37,7 +37,7 @@ async function main(cursor, size, overwrite) {
   try {
     const { results, has_more, next_cursor } = await notion.databases.query({
       database_id: NOTION_DATABASE_ID,
-      filter: { property: 'source_type', select: { equals: 'youtube' } },
+      filter: { property: 'source_type', select: { equals: 'vimeo' } },
       sorts: [{ property: 'b_created', direction: 'ascending' }],
       start_cursor: cursor || undefined,
       page_size: size,
@@ -45,47 +45,49 @@ async function main(cursor, size, overwrite) {
 
     if (results && results.length > 0) {
       results.forEach(async (result) => {
-        const id = result.properties.y_id.rich_text[0].text.content || ''
+        const id = result.properties.v_id.rich_text[0].text.content || ''
         const locked = result.properties.locked.checkbox || false
 
         if (locked) {
           console.log(`Vimeo ${id} is locked in page ${result.id}`)
         } else {
-          if (overwrite || !result.properties.y_etag.rich_text[0]) {
+          if (overwrite || !result.properties.v_resource_key.rich_text[0]) {
             if (overwrite) {
               // overwrite then update
               console.log(
-                `Overwrite YouTube info ${id}, update page ${result.id}`
+                `Overwrite Vimeo info ${id}, update page ${result.id}`
               )
             } else {
-              console.log(`Add YouTube info ${id}, update page ${result.id}`)
+              console.log(`Add Vimeo info ${id}, update page ${result.id}`)
             }
-            console.log(`Get YouTube video ${id}`)
-            const video = await getYoutubeVideo(id)
+            console.log(`Get Vimeo video ${id}`)
+            const video = await getVimeoVideo(id)
             if (video) {
               const {
-                etag,
-                snippet: {
-                  publishedAt,
-                  channelId,
-                  channelTitle,
-                  title,
-                  description,
+                name,
+                description,
+                duration,
+                release_time,
+                resource_key,
+                user: {
+                  name: userName,
+                  link,
+                  location,
+                  gender,
+                  bio,
+                  short_bio,
                 },
               } = video
               await notion.pages.update({
                 page_id: result.id,
                 properties: {
-                  y_etag: { rich_text: [{ text: { content: etag } }] },
-                  y_published_at: { date: { start: publishedAt } },
-                  y_channel_id: {
-                    rich_text: [{ text: { content: channelId } }],
+                  v_resource_key: {
+                    rich_text: [{ text: { content: resource_key } }],
                   },
-                  y_channel_title: {
-                    rich_text: [{ text: { content: channelTitle } }],
-                  },
-                  y_title: { rich_text: [{ text: { content: title } }] },
-                  y_description: {
+                  v_release_time: { date: { start: release_time } },
+                  v_name: { rich_text: [{ text: { content: name } }] },
+                  v_duration: { number: duration },
+                  v_description: {
                     rich_text: [
                       {
                         text: {
@@ -94,12 +96,26 @@ async function main(cursor, size, overwrite) {
                       },
                     ],
                   },
+                  v_user_link: { url: link },
+                  v_user_name: { rich_text: [{ text: { content: userName } }] },
+                  v_user_bio: {
+                    rich_text: [
+                      { text: { content: (bio || '').substring(0, 2000) } },
+                    ],
+                  },
+                  v_user_short_bio: {
+                    rich_text: [{ text: { content: short_bio || '' } }],
+                  },
+                  v_user_location: {
+                    rich_text: [{ text: { content: location } }],
+                  },
+                  v_user_gender: { rich_text: [{ text: { content: gender } }] },
                 },
               })
             }
           } else {
             console.log(
-              `Skipped YouTube info ${id}, already in page ${result.id}`
+              `Skipped Vimeo info ${id}, already in page ${result.id}`
             )
           }
         }

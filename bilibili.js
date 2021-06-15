@@ -22,7 +22,6 @@ program
 program.parse()
 
 const options = program.opts()
-console.log('🚀 ~ options', options)
 const page = options.page >= 1 ? options.page : 1
 const size = options.size >= 0 && options.size <= 100 ? options.size : 100
 const overwrite = !!options.overwrite
