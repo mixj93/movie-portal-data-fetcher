@@ -19,6 +19,9 @@ $ node bilibili.js -s 10 -p 1
 $ node youtube.js -s 50 -c xxxxxx
 
 $ node vimeo.js -s 50 -c xxxxxx
+
+# 获取某一项的视频信息（youtube或vimeo）
+$ node oneitem.js -b <bvid>
 ```
 
 ## Roadmap
