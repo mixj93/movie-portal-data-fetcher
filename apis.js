@@ -27,10 +27,15 @@ const HttpsProxyAgent = require('https-proxy-agent')
   is_live_playback: 0
 } */
 async function listBilibiliVideos(page, size) {
+  const HTTPS_PROXY = process.env.HTTPS_PROXY
   let videos = []
   try {
     const response = await axios.get(
-      `https://api.bilibili.com/x/space/arc/search?mid=57598190&ps=${size}&tid=0&pn=${page}&keyword=&order=pubdate&jsonp=jsonp`
+      `https://api.bilibili.com/x/space/arc/search?mid=57598190&ps=${size}&tid=0&pn=${page}&keyword=&order=pubdate&jsonp=jsonp`,
+      {
+        proxy: false,
+        httpsAgent: HTTPS_PROXY ? new HttpsProxyAgent(HTTPS_PROXY) : undefined,
+      }
     )
     if (
       response &&
